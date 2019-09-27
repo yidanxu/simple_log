@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Captain's Log</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- Use this open source library to make dates easier
+        Source available at:  https://momentjs.com/docs/ -->
+    <script src="https://momentjs.com/downloads/moment.js"></script>
+    <script>
+        //keep track of the number of entries so we can use this as an index into 
+        //local storage
+        var numberEntries = 0;
+        $(document).ready(function() {
+                //if there are prior entries, load them first.
+                loadStoredEntries();
+
+                //When they press enter, write their new log entry
+                $("#msg").on("keydown", (function(event){
+                    if ( event.which == 13 ) {
+                        logEntry($(this).val());
+                        $(this).val('');
+                    }
+                }) );
+            });
+
+        //Format the text from the input and add a timestamp to it.
+        //Add it to localStorage with a key representing the order it was entered
+        function logEntry(input_text){
+            var currentEntry = '<div class="log_entry">' 
+                + moment().format('MMM D YYYY, h:mm:ss a') 
+                + " - " + input_text + '</div></div>'
+
+            $("#log").prepend(currentEntry);
+            localStorage.setItem(numberEntries, currentEntry);
+            numberEntries++;
+            //update number Entries everytime we never know when user will leave
+            localStorage.setItem("n", numberEntries);
+        };
+
+        //Load the previously stored entries
+        //Note if "n" is not set it returns null
+        //and we do not loop through the log_entries
+        function loadStoredEntries(){
+            var n = localStorage.getItem("n");
+            if (n==null)
+                numberEntries = 0;
+            else{
+                numberEntries = n;
+                var i ;
+                for (i = 0; i < numberEntries; ++i){
+                    //The stored input is already formatted so just output
+                    //it in correct order
+                    $("#log").prepend(localStorage.getItem(i));
+                }
+            }
+
+        }
+        
+    </script>
+</head>
+
+
+
+<body>
+    <h1>Captain's Log</h1>
+    <h3>New entry: <input type="text" id="msg" name="msg" size="30" /></h3>
+    <div id="log"></div>
+</body>
+</html>
